@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Variables
+repository_path="/path/to/repository"
+start_date="2023-01-01"  # Specify the start date in YYYY-MM-DD format
+end_date="2023-05-01"    # Specify the end date in YYYY-MM-DD format
+output_file="commits.csv"
+
+# Move to the repository directory
+cd "$repository_path" || exit 1
+
+# Initialize the CSV file with headers
+echo "Author,Timestamp,File" > "$output_file"
+
+# Retrieve the commit logs within the specified time range
+git log --pretty=format:'%an,%ad,%s' --date=short --after="$start_date" --before="$end_date" |
+while IFS=',' read -r author timestamp message; do
+  # Get the list of modified files in the commit
+  files=$(git show --name-only --pretty='' --diff-filter=AMRC "$message")
+
+  # Append each modified file to the CSV file
+  while IFS= read -r file; do
+    echo "$author,$timestamp,\"$file\"" >> "$output_file"
+  done <<< "$files"
+done
+
+echo "Commits saved to $output_file."
