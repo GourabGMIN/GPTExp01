@@ -10,7 +10,7 @@ output_file="commits.csv"
 cd "$repository_path" || exit 1
 
 # Initialize the CSV file with headers
-echo "Author,Timestamp,File" > "$output_file"
+echo "Author,Timestamp,Commit Message,File" > "$output_file"
 
 # Retrieve the commit logs within the specified time range
 git log --pretty=format:'%an,%ad,%s' --date=short --after="$start_date" --before="$end_date" |
@@ -20,7 +20,7 @@ while IFS=',' read -r author timestamp message; do
 
   # Append each modified file to the CSV file
   while IFS= read -r file; do
-    echo "$author,$timestamp,\"$file\"" >> "$output_file"
+    echo "$author,$timestamp,\"$message\",\"$file\"" >> "$output_file"
   done <<< "$files"
 done
 
